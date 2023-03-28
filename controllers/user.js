@@ -44,5 +44,8 @@ exports.getLoginPage=(req,res,next)=>{
      res.status(200).sendFile(path.join(__dirname, "..", "views", "login.html"));
 
 }
+exports.postLoginDetails=(req,res,next)=>{
+     
+}
 
 
