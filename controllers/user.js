@@ -1,6 +1,17 @@
 const path = require('path');
 const bcrypt = require('bcrypt');
 const User = require('../models/user');
+const jwt=require('jsonwebtoken');
+const dotenv=require('dotenv');
+dotenv.config();
+
+
+
+
+
+function generateAccessToken(id, name) {
+     return jwt.sign({ userId: id, name: name }, process.env.JWT_SECRET_TOKEN);
+ }
 
 function invalidInput(input) {
      if (input === undefined || input.length === 0) {
@@ -44,7 +55,39 @@ exports.getLoginPage=(req,res,next)=>{
      res.status(200).sendFile(path.join(__dirname, "..", "views", "login.html"));
 
 }
-exports.postLoginDetails=(req,res,next)=>{
+exports.postLoginDetails=async(req,res,next)=>{
+     try {
+
+          const email = req.body.email;
+          const password = req.body.password;
+          if (invalidInput(email) || invalidInput(password)) {
+              return res.status(400).json({ message: 'input can not be empty or undefined' })
+          }
+          const user = await User.findAll({ where: { email: email } });
+          if (user.length > 0) {
+              bcrypt.compare(password, user[0].password, (err, result) => {
+                  if (err) {
+                      res.status(500).json({ success: false, message: 'something went wrong!' })
+  
+                  }
+                  if (result === true) {
+                      res.status(200).json({ success: true, message: 'Logged in successful', token: generateAccessToken(user[0].id, user[0].name) })
+                  }
+                  else {
+                      return res.status(400).json({ success: false, message: 'Incorrect Password! Please refresh the page and Enter again' })
+  
+                  }
+              });
+          }
+          else {
+              return res.status(404).json({ success: false, message: 'user does not exist' })
+  
+          }
+      }
+  
+      catch (err) {
+          res.status(500).json({ message: err, success: false })
+      }
      
 }
 
