@@ -7,8 +7,6 @@ dotenv.config();
 
 
 
-
-
 function generateAccessToken(id, name) {
      return jwt.sign({ userId: id, name: name }, process.env.JWT_SECRET_TOKEN);
  }
@@ -29,25 +27,28 @@ exports.postUserDetails = (req, res, next) => {
      const { name, email, phone, password } = req.body;
      if (invalidInput(name) || invalidInput(email) || invalidInput(password) || invalidInput(phone)) {
           return res.status(400).json({ message: 'input can not be empty or undefined' });
-     };
-     bcrypt.hash(password, 10, async (err, hash) => {
-          try {
+     }
+     else{
 
-               const user = await User.create({
-                    name: name,
-                    email: email,
-                    phone: phone,
-                    password: hash
-               });
-               // console.log("user==>>", user);
-               res.status(201).json({ message: 'user is created successfully', success: true })
-          }
-          catch (err) {
-               res.status(500).json({ message: "email id or phone number is already exist,Please Login", success: false });
-
-          }
-
-     })
+          bcrypt.hash(password, 10, async (err, hash) => {
+               try {
+     
+                    const user = await User.create({
+                         name: name,
+                         email: email,
+                         phone: phone,
+                         password: hash
+                    });
+                    // console.log("user==>>", user);
+                    res.status(201).json({ message: 'user is created successfully', success: true })
+               }
+               catch (err) {
+                    res.status(500).json({ message: "email id or phone number is already exist,Please Login", success: false });
+     
+               }
+     
+          })
+     }
 
 
 };
@@ -89,6 +90,11 @@ exports.postLoginDetails=async(req,res,next)=>{
           res.status(500).json({ message: err, success: false })
       }
      
+}
+
+//chat window:
+exports.getChatWindow=(req,res,next)=>{
+     res.status(200).sendFile(path.join(__dirname, "..", "views", "chatFrontend.html"));
 }
 
 

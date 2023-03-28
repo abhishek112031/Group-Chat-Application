@@ -13,6 +13,8 @@ async function loginUser(event){
             if(confirm(resp.data.message)){
     
               localStorage.setItem('token',resp.data.token);
+
+              window.location.href='/user/chat'
       
             //   window.location.href='/user/chat'
             console.log('successful login')
