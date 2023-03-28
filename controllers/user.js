@@ -11,7 +11,7 @@ function invalidInput(input) {
      }
 }
 exports.getSignupPage = (req, res, next) => {
-     res.status(200).sendFile(path.join(__dirname, "..", "views", "signup.html"))
+     res.status(200).sendFile(path.join(__dirname, "..", "views", "signup.html"));
 }
 exports.postUserDetails = (req, res, next) => {
 
@@ -32,12 +32,16 @@ exports.postUserDetails = (req, res, next) => {
                res.status(201).json({ message: 'user is created successfully', success: true })
           }
           catch (err) {
-               res.status(500).json({ message: "email id or phone number is already exist", success: false });
+               res.status(500).json({ message: "email id or phone number is already exist,Please Login", success: false });
 
           }
 
      })
 
+
+};
+exports.getLoginPage=(req,res,next)=>{
+     res.status(200).sendFile(path.join(__dirname, "..", "views", "login.html"));
 
 }
 
