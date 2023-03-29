@@ -49,7 +49,7 @@ exports.postChatMessage= async (req,res,next)=>{
              userId:req.user.id
          });
          // console.log(msg)
-         res.status(201).json({ message: 'successfull', success: true });
+         res.status(201).json({ message: msg.message, success: true });
     }
     // console.log(typeof(message));
     catch(err){
@@ -62,7 +62,7 @@ exports.getChatMessages=async(req,res,next)=>{
     try{
         const userMessageArr=await Message.findAll({where:{userId:req.user.id}});
         console.log(userMessageArr);
-        res.status(200).json(userMessageArr);
+        res.status(200).json({message:userMessageArr,name:req.user.name});
 
     }
     catch(err){
