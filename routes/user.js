@@ -8,7 +8,6 @@ router.get('/login',userController.getLoginPage);
 router.post('/post-login-data',userController.postLoginDetails);
 
 
-//chat window:
-router.get('/user/chat',userController.getChatWindow)
+
 
 module.exports=router;

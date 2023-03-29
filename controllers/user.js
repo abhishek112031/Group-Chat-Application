@@ -92,9 +92,6 @@ exports.postLoginDetails=async(req,res,next)=>{
      
 }
 
-//chat window:
-exports.getChatWindow=(req,res,next)=>{
-     res.status(200).sendFile(path.join(__dirname, "..", "views", "chatFrontend.html"));
-}
+
 
 
