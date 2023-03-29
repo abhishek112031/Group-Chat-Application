@@ -32,17 +32,22 @@ exports.postUserDetails = (req, res, next) => {
 
           bcrypt.hash(password, 10, async (err, hash) => {
                try {
+
+                    
+
+                         const user = await User.create({
+                              name: name,
+                              email: email,
+                              phone: phone,
+                              password: hash
+                         });
+                         // console.log("user==>>", user);
+                         res.status(201).json({ message: 'user is created successfully', success: true })
+                   
      
-                    const user = await User.create({
-                         name: name,
-                         email: email,
-                         phone: phone,
-                         password: hash
-                    });
-                    // console.log("user==>>", user);
-                    res.status(201).json({ message: 'user is created successfully', success: true })
                }
                catch (err) {
+                    console.log("err post=>",err)
                     res.status(500).json({ message: "email id or phone number is already exist,Please Login", success: false });
      
                }
