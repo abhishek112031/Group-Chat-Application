@@ -2,103 +2,96 @@
 async function getAllUserMessage() {
   const token = localStorage.getItem('token');
 
-  try{
+  try {
 
-    setInterval(async() => {
-  
-      const allmsg = await axios.get('/user/all-messages', { headers: { "Authorization": token } });
-      document.getElementById('greet').innerHTML = `Hi ${allmsg.data.admin}, Welcome to Group Chat App `
-      // console.log("msgdata-->",allmsg.data.message);
 
-      if(allmsg.data.message.length<15){
 
-        localStorage.setItem("messages", JSON.stringify(allmsg.data.message));
-      }
-      else{
-        localStorage.setItem("messages", JSON.stringify(allmsg.data.message.slice(allmsg.data.message.length-15,allmsg.data.message.length)));
+    const allmsg = await axios.get('/user/all-messages', { headers: { "Authorization": token } });
+    document.getElementById('greet').innerHTML = `Hi ${allmsg.data.admin}, Welcome to Group Chat App `
+    
 
-      }
+//local storage logic:----->
 
-  
-  
-    }, 3000);
+   if (localStorage.getItem('messages')!=null){
 
-    let msgStr = localStorage.getItem('messages');
-    let msgParsed = JSON.parse(msgStr);
-    console.log("parsed===",msgParsed[10])
-    // console.log("split arr--->",msgParsed.slice(msgParsed.length-10,msgParsed.length))
+     let msgStr = localStorage.getItem('messages');
+     let msgParsed = JSON.parse(msgStr);
+     let lastMsgId = msgParsed[msgParsed.length - 1].id;
+ 
+     let newres = await axios.get(`/user/new-messages/?id=${lastMsgId}`);
+ 
+     localStorage.setItem('messages',JSON.stringify(msgParsed.concat(newres.data)));
 
-    msgParsed.forEach(element => {
+     let allchats=JSON.parse(localStorage.getItem('messages'));
+     allchats.forEach(element => {
       showOnScreen(element);
-    });
+      
+     });
+
+    //  showOnScreen(JSON.parse(localStorage.getItem("messages")))
+
+   
+   }
+   else{
+    localStorage.setItem('messages',JSON.stringify([{id:0,name:"Chat App",message:"no messages yet,waiting for Your first message🥱"}]))
+   
+
+   }
 
 
-    //new messages:
-    console.log("--->",msgParsed.length);
-    // if(msgParsed.length>10){
-    //   msgParsed.slice(msgParsed.length-10,msgParsed.length).forEach(element => {
-    //     showOnScreen(element);
-    //   });
-    // }
-    // else{
-    //   msgParsed.forEach(element => {
-    //       showOnScreen(element);
-    //     });
-
-    // }
   }
-  catch(err){
-    console.log("err====>",err)
+  catch (err) {
+    console.log("err====>", err)
   }
 
 
- 
+
+
+}
+
+
+document.querySelector('.btn1').onclick = async function (e) {
+  e.preventDefault();
+
+  const token = localStorage.getItem('token');
+
+  let message = document.getElementById('inp').value;
+
+  if (message === undefined || message === null || message === "") {
+
+    // console.log("cant be empty message--->")
+  }
+  else {
+    // console.log(msg,token);
+    const msgObj = { message }
+
+    const response = await axios.post('/user/message', msgObj, { headers: { "Authorization": token } });
+    // console.log("***",response.data.message);
+    showOnScreen(response.data.message);
+
+    document.getElementById('inp').value = "";
+    // getAllUserMessage();
+
+
 
   }
- 
- 
- document.querySelector('.btn1').onclick = async function (e) {
-    e.preventDefault();
+};
+window.addEventListener('DOMContentLoaded', async () => {
 
-    const token = localStorage.getItem('token');
+  getAllUserMessage();
+});
+function showOnScreen(data) {
+  // console.log("data-->",data)
+  const child = `<li id=${data.id}><span class=fw-bold>${data.name}:</span> <span class=text-primary>${data.message}</li>`
+  const parent = document.getElementById('ul');
+  parent.innerHTML += child;
+  // console.log("child==",child)
+}
 
-    let message = document.getElementById('inp').value;
+document.querySelector('.logout').onclick = async function () {
+  if (confirm('Click ok to logout')) {
 
-    if (message === undefined || message === null || message === "") {
-
-      // console.log("cant be empty message--->")
-    }
-    else {
-      // console.log(msg,token);
-      const msgObj = { message }
-
-      const response = await axios.post('/user/message', msgObj, { headers: { "Authorization": token } });
-      // console.log("***",response.data.message);
-      showOnScreen(response.data.message);
-
-      document.getElementById('inp').value = "";
-      // getAllUserMessage();
-
-
-
-    }
-  };
-  window.addEventListener('DOMContentLoaded',async()=>{
-
-    getAllUserMessage();
-  });
-  function showOnScreen(data) {
-    // console.log("data-->",data)
-    const child = `<li id=${data.id}><span class=fw-bold>${data.name}:</span> <span class=text-primary>${data.message}</li>`
-    const parent = document.getElementById('ul');
-    parent.innerHTML += child;
-    // console.log("child==",child)
+    localStorage.clear();
+    window.location.href = '/login';
   }
-
-  document.querySelector('.logout').onclick = async function () {
-    if (confirm('Click ok to logout')) {
-
-      localStorage.clear();
-      window.location.href = '/login';
-    }
-  }
+}

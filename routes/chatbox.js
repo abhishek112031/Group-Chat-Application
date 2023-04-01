@@ -6,6 +6,8 @@ const userAuth=require('../middleware/auth')
 
 //chat window:
 router.get('/user/chat',chatmsgController.getChatWindow);
+router.get('/user/new-messages',chatmsgController.getNewMessages);
+
 router.post('/user/message',userAuth,chatmsgController.postChatMessage);
 router.get('/user/all-messages',userAuth,chatmsgController.getChatMessages);
 
