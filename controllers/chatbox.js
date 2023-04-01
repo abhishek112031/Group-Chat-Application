@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 const User = require('../models/user');
 const Message=require('../models/chatbox')
 
-const jwt=require('jsonwebtoken');
+// const jwt=require('jsonwebtoken');
 const dotenv=require('dotenv');
 dotenv.config();
 
@@ -46,10 +46,11 @@ exports.postChatMessage= async (req,res,next)=>{
         const msg=await Message.create({
     
              message: message,
-             userId:req.user.id
+             userId:req.user.id,
+             name:req.user.name
          });
-         // console.log(msg)
-         res.status(201).json({ message: msg.message, success: true });
+         console.log(msg.id);
+         res.status(201).json({ message: msg,name:req.user.name, success: true });
     }
     // console.log(typeof(message));
     catch(err){
@@ -60,13 +61,15 @@ exports.postChatMessage= async (req,res,next)=>{
 exports.getChatMessages=async(req,res,next)=>{
 
     try{
-        const userMessageArr=await Message.findAll({where:{userId:req.user.id}});
-        console.log(userMessageArr);
-        res.status(200).json({message:userMessageArr,name:req.user.name});
+        const userMessageArr=await Message.findAll();
+        // console.log(userMessageArr);
+        // res.status(200).json({message:userMessageArr,admin:req.user.name});
+        res.status(200).json({message:userMessageArr.slice(userMessageArr.length-15,userMessageArr.length),admin:req.user.name});
 
     }
     catch(err){
-        console.log("err-->",err)
+        console.log("err-->",err);
+        res.status(500).json({ message: "something went wrong", success: false });
 
     }
 
