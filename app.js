@@ -7,10 +7,13 @@ const sequelize=require('./util/database');
 //models:
 const User=require('./models/user');
 const Message=require('./models/chatbox');
+const Group=require('./models/group');
+const User_Group=require('./models/usergroup');
 
 //routes:
 const userRoute=require('./routes/user');
 const chatRoute=require('./routes/chatbox');
+const groupRoute=require('./routes/group');
 
 
 
@@ -24,6 +27,7 @@ app.use(cors({
 
 //main middlewares:
 app.use(userRoute);
+app.use(groupRoute);
 app.use(chatRoute);
 
 
@@ -32,6 +36,14 @@ app.use(chatRoute);
 // table joins:
 User.hasMany(Message);
 Message.belongsTo(User);
+
+User.belongsToMany(Group,{through:User_Group});
+Group.belongsToMany(User,{through:User_Group});
+
+
+Group.hasMany(Message);
+Message.belongsTo(Group);
+
 
 
 

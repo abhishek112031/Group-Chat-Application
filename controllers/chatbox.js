@@ -63,7 +63,7 @@ exports.getChatMessages=async(req,res,next)=>{
 
     try{
         const userMessageArr=await Message.findAll();
-        // console.log(userMessageArr);
+        console.log("***",userMessageArr);
         // res.status(200).json({message:userMessageArr,admin:req.user.name});//all msg
         res.status(200).json({admin:req.user.name});//all msg
 

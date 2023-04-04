@@ -1,20 +1,17 @@
 const Sequelize=require('sequelize');
-const path=require('path');
 const sequelize=require('../util/database');
-const Message=sequelize.define('message',{
+const Group=sequelize.define('group',{
     id:{
         type:Sequelize.INTEGER,
         autoIncrement:true,
         allowNull:false,
         primaryKey:true
     },
-  
-    message:{
+   
+    nameOfGroup:{
         type:Sequelize.STRING,
-        allowNull:false,
-
+        allowNull:false
     }
-  
 
 });
-module.exports=Message;
+module.exports=Group;

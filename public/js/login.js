@@ -14,9 +14,9 @@ async function loginUser(event){
     
               localStorage.setItem('token',resp.data.token);
 
-              window.location.href='/user/chat';
+              window.location.href='/groups';
       
-            //   window.location.href='/user/chat'
+           
             console.log('successful login')
             }
       
