@@ -34,6 +34,8 @@ exports.userAllGroups=async (req,res,next)=>{
         attributes : ["id" , "nameOfGroup"]
     });
 
+    console.log("user group===",arrayOfGroups)
+
     res.status(200).json(arrayOfGroups);
 
 };
@@ -43,7 +45,8 @@ exports.allGroups=async(req,res,next)=>{
     const otherGroups=await Group.findAll({
         attributes : ["id" , "nameOfGroup"]
     });
-    console.log("otherGrp-->",otherGroups)
+    // console.log("otherGrp-->",otherGroups)
+    
     res.status(200).json(otherGroups);
 
 }

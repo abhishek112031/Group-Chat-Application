@@ -34,29 +34,49 @@ window.addEventListener('DOMContentLoaded',async ()=>{
     const token=localStorage.getItem('token');
     const usergroupArr=await axios.get('/user-groups',{ headers: { "Authorization": token } });
     // console.log("allgrp==",allgroupArr.data);
-    usergroupArr.data.forEach(element => {
+    let userGroupArr=usergroupArr.data;
+    userGroupArr.forEach(element => {
         showGroupsOnscreen(element);
         
     });
-    console.log("hiii");
-    const allGroups=await axios.get('/all-groups',{ headers: { "Authorization": token } });
-    // console.log("==",allGroups.data)
+    let allGroups=await axios.get('/all-groups',{ headers: { "Authorization": token } });
     let allgroupArr=allGroups.data;
-    let userGroupArr=usergroupArr.data;
-    let otherGroupsArr=[]
+    let otherGroupsArr=[];
 
-    for(let i=0;i<userGroupArr.length;i++ ){
-        for(let j=0;j<allgroupArr.length;j++){
-            if(userGroupArr[i].id!=allgroupArr[j].id){
-                otherGroupsArr.push(allgroupArr[j])
+    if(userGroupArr.length===0){
+       
 
+        allgroupArr.forEach(elem=>{
+            showOtherGroupsOnscreen(elem)
+        });
+
+    }
+    else{
+         for(let i=0;i<userGroupArr.length;i++ ){
+            for(let j=0;j<allgroupArr.length;j++){
+                if(userGroupArr[i].id!=allgroupArr[j].id){
+                    otherGroupsArr.push(allgroupArr[j])
+    
+                }
             }
         }
-    }
-    // console.log("===",otherGroupsArr);
-    otherGroupsArr.forEach(elem=>{
+        otherGroupsArr.forEach(elem=>{
+            showOtherGroupsOnscreen(elem)
+        });
 
-        showOtherGroupsOnscreen(elem)
-    })
+    }
+
+   
+    
+  
+    // console.log("==",allGroups.data)
+    
+    
+    
+   
+
+
+ 
+
 
 })
