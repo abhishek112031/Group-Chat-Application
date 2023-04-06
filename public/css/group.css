@@ -1,0 +1,23 @@
+body {
+    background-image: url("https://images.unsplash.com/photo-1518184980852-9f01362dd72f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8ODN8fGNoYXQlMjBiYWNrZ3JvdW5kfGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=500&q=60");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+
+}
+li{
+    font-family: 'Alkatra', cursive;
+    border: 2px solid yellow;
+    border-radius: 10px;
+    text-align: center;
+    font-size: large;
+}
+#space {
+    height: 10vh;
+}
+#heading{
+    font-family: 'Merriweather Sans', sans-serif;
+    color: orange;
+    background: #571616;
+
+}
