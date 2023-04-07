@@ -29,8 +29,8 @@ async function createGroup(event) {
 
 function showGroupsOnscreen(data) {
     let parent_node = document.getElementById('all-groups');
-    let childNode = `<li id=${data.id} class="mt-3 bg-light fw-bold" >${data.nameOfGroup}<button onclick=deleteGroup('${data.id}')  class=" btn btn-outline-danger ms-4 ">Delete</button></li>`
-
+    let childNode = `<li id=${data.id} class="mt-3 fw-bold" >${data.nameOfGroup}<button onclick=deleteGroup('${data.id}')  class=" btn btn-outline-danger ms-4 ">Delete</button><button onclick=openGroup('${data.id}') class="btn btn-outline-primary ms-2">Enter </button></li>`
+    
     parent_node.innerHTML += childNode;
 };
 function showOtherGroupsOnscreen(data) {
@@ -46,7 +46,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
         const token = localStorage.getItem('token');
         const userName = await axios.get('/user-name', { headers: { "Authorization": token } });
-        document.getElementById('heading').innerHTML = `Hi,${userName.data.username} Well Come to group Chat Application `;
+        document.getElementById('heading').innerHTML = `Hi , ${userName.data.username} Well Come to Group Chat Application🙂 `;
         const usergroupArr = await axios.get('/user-groups', { headers: { "Authorization": token } });
     
         let userGroupArr = usergroupArr.data;
@@ -118,3 +118,10 @@ async function deleteGroup(groupId) {
 
     }
 };
+
+//open groupWindow:-->
+async function openGroup(grId){
+    localStorage.setItem('groupId',grId);
+    console.log("save to local storage!");
+    window.location.href=`/group/messages`
+}

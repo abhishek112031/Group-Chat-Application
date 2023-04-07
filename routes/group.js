@@ -10,6 +10,12 @@ router.post('/add-newGroup',userAuth,groupController.createNewGroup);
 router.get('/user-groups',userAuth,groupController.userAllGroups);
 router.get('/other-groups',userAuth,groupController.otherGroups);
 router.get('/join-group/:Id',userAuth,groupController.joinGroup);
+//trial
+router.get('/userGroup/members/:groupId',userAuth,groupController.getOtherMembers);
+router.get('/group-admins/:Id',userAuth,groupController.getAdmins);
+// router.get('/group/messages',groupController.groupMessagePage)
+router.post('/make-admin',userAuth,groupController.makeUserAdmin);
+router.post('/remove-user',userAuth,groupController.removeUser);
 router.delete('/delete-group/:groupId',userAuth,groupController.deleteGroupByAdmin)
 
 

@@ -1,97 +1,89 @@
+const token=localStorage.getItem('token');
+const groupId=localStorage.getItem('groupId');
+window.addEventListener('DOMContentLoaded',async()=>{
+    try{
+        
+        const allGroupMemberRes=await axios.get(`/userGroup/members/${groupId}`,{ headers: { "Authorization": token }});
+        console.log('members=>',allGroupMemberRes.data);
+        allGroupMemberRes.data.forEach(element => {
+            showgroupMembersOnScreen(element);
+            
+        });
+        const adminsResp=await axios.get(`/group-admins/${groupId}`,{ headers: { "Authorization": token }});
+        console.log("admins arr-->",adminsResp.data)
+        adminsResp.data.forEach(element => {
+            showgroupAdminsOnScreen(element);
+            
+        });
+//heading data:user name,group name:
+        const headingResp=await axios.get(`/group/heading-data/${groupId}`,{ headers: { "Authorization": token }});
+        console.log('heading resp==>',headingResp.data);
+        document.getElementById('Groupchatheading').innerHTML=`Hi ${headingResp.data.userName}, Welcome to Group: ${headingResp.data.groupName}`;
 
-async function getAllUserMessage() {
-  const token = localStorage.getItem('token');
-
-  try {
-
-
-
-    const allmsg = await axios.get('/user/all-messages', { headers: { "Authorization": token } });
-    document.getElementById('greet').innerHTML = `Hi ${allmsg.data.admin}, Welcome to Group Chat App `
-    
-
-//local storage logic:----->
-
-   if (localStorage.getItem('messages')!=null){
-
-     let msgStr = localStorage.getItem('messages');
-     let msgParsed = JSON.parse(msgStr);
-     let lastMsgId = msgParsed[msgParsed.length - 1].id;
- 
-     let newres = await axios.get(`/user/new-messages/?id=${lastMsgId}`);
- 
-     localStorage.setItem('messages',JSON.stringify(msgParsed.concat(newres.data)));
-
-     let allchats=JSON.parse(localStorage.getItem('messages'));
-     allchats.forEach(element => {
-      showOnScreen(element);
-      
-     });
-
-    //  showOnScreen(JSON.parse(localStorage.getItem("messages")))
-
-   
-   }
-   else{
-    localStorage.setItem('messages',JSON.stringify([{id:0,name:"Chat App",message:"no messages yet,waiting for Your first message🥱"}]))
-   
-
-   }
-
-
-  }
-  catch (err) {
-    console.log("err====>", err)
-  }
-
-
-
-
-}
-
-
-document.querySelector('.btn1').onclick = async function (e) {
-  e.preventDefault();
-
-  const token = localStorage.getItem('token');
-
-  let message = document.getElementById('inp').value;
-
-  if (message === undefined || message === null || message === "") {
-
-    // console.log("cant be empty message--->")
-  }
-  else {
-    // console.log(msg,token);
-    const msgObj = { message }
-
-    const response = await axios.post('/user/message', msgObj, { headers: { "Authorization": token } });
-    // console.log("***",response.data.message);
-    showOnScreen(response.data.message);
-
-    document.getElementById('inp').value = "";
-    // getAllUserMessage();
-
-
-
-  }
-};
-window.addEventListener('DOMContentLoaded', async () => {
-
-  getAllUserMessage();
+    }
+    catch(err){
+        console.log('err-->',err)
+    }
 });
-function showOnScreen(data) {
-  // console.log("data-->",data)
-  const child = `<li id=${data.id}><span class=fw-bold>${data.name}:</span> <span class=text-primary>${data.message}</li>`
-  const parent = document.getElementById('ul');
-  parent.innerHTML += child;
-  // console.log("child==",child)
+
+async function showgroupMembersOnScreen(data){
+    let parent1=document.getElementById('members');
+    let child1=`<li id=${data.id}>${data.name} <button onclick=makeAdmin('${data.id}') >Make Admin</button><button onclick=removeUser('${data.id}') >Remove</button></li>`
+    if(child1){
+
+        parent1.innerHTML+=child1;
+    }
+    
+};
+async function showgroupAdminsOnScreen(data){
+    let parent2=document.getElementById('admins');
+    let child2=`<li id=${data.id}>${data.name}</li>`
+    if(child2){
+
+        parent2.innerHTML+=child2;
+    }
+
+}
+async function makeAdmin(userId){
+    try{
+        const details={
+            userId:userId,
+            groupId:groupId
+        }
+
+        const makeAdminResp=await axios.post('/make-admin',details,{ headers: { "Authorization": token }});
+        let parent2=document.getElementById('members');
+        let child2=document.getElementById(userId);
+
+        parent2.removeChild(child2);
+        showgroupAdminsOnScreen(makeAdminResp.data);
+
+        
+
+
+    }
+    catch(err){
+
+    }
+
 }
 
-document.querySelector('.logout').onclick = async function () {
-  if (confirm('Click ok to logout')) {
+async function removeUser(userId){
+    try{
+        const details={
+            userId:userId,
+            groupId:groupId
+        }
 
-    localStorage.clear();
-    window.location.href = '/login';
-  }
+       const  removeRes=await axios.post('/remove-user',details,{ headers: { "Authorization": token }});
+       let parent3=document.getElementById('members');
+        let child3=document.getElementById(userId);
+
+        parent3.removeChild(child3);
+     
+
+    }
+    catch(err){
+
+    }
 }

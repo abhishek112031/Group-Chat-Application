@@ -15,33 +15,35 @@
   <link href="https://fonts.googleapis.com/css2?family=Merriweather+Sans:wght@300&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/group.css">
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&display=swap" rel="stylesheet">
+
 </head>
 
 <body>
   <h3 id="heading" class="text-center"></h3>
   <div id="space">
+    <div id="errDel"></div>
   </div>
-  <div class="container mt-5">
-    <div class="row justify-content-center">
-      <div class="col-md-4 col-lg-4">
+  <div class="container mt-1">
+    <div class="row justify-content-start">
+      <div class="col-md-4 col-lg-5">
         <div class="card shadow-lg">
-          <div class="card-body">
+          <div id="card" class="card-body">
             <hr>
-            <h4 class="card-title text-center mb-4 text-primary fst-italic">YOUR GROUPS:👇</h4>
+            <h4 class=" grp card-title text-center mb-4 ">YOUR GROUPS:👇</h4>
             <hr>
-            <div>
+            <div class="scroll-div">
               <ol id="all-groups">
 
               </ol>
             </div>
             <hr>
-            <div>
-              <h4 class="card-title text-center mb-4 text-primary fst-italic">OTHER GROUPS:👇</h4>
-              <hr>
+            <h4 class="grp card-title text-center mb-4">OTHER GROUPS:👇</h4>
+            <hr>
+            <div class="scroll-div">
               <ol id="other-groups"></ol>
-
-
-
             </div>
 
           </div>
