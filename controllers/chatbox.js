@@ -21,11 +21,30 @@ exports.getHeadingData=async (req,res,next)=>{
         const {groupId}=req.params;
         const groupDetails=await Group.findByPk(groupId);
         const groupName=groupDetails.nameOfGroup;
-        res.status(200).json({groupName:groupName,userName:req.user.name})
+        res.status(200).json({groupName:groupName,userName:req.user.name,userId:req.user.id})
 
     }
     catch(err){
         console.log('heading err:-->',err);
+
+    }
+}
+exports.postMessages=async (req,res,next)=>{
+    try{
+        const {message,userId,groupId}=req.body;
+        const saveToDb=await Message.create({
+            message:message,
+            senderName:req.user.name,
+            userId:userId,
+            groupId:groupId
+
+        });
+        res.status(201).json(saveToDb);
+
+
+    }
+    catch(err){
+        console.log('err--->',err)
 
     }
 }
@@ -95,29 +114,32 @@ exports.getHeadingData=async (req,res,next)=>{
 
 // }
 // // query for new message only:--> 
-// exports.getNewMessages=async (req,res,next)=>{
-//     try{
+exports.getNewMessages=async (req,res,next)=>{
+    try{
 
-//         let Id=req.query.id;
-//         // console.log("id===",id);
+
+      const {lastId,groupId}=req.query;
+        // console.log("id===",id);
     
-//         let newmsg=await Message.findAll({where: {
-//             id: {
-//               [Op.gt]: Id // use the "greater than" operator to compare the "id" column to Id
-//             }
-//           }
-//         });
-//         // console.log("newmsg==>",newmsg);
-//         res.status(200).json(newmsg);
-//     }
-//     catch(err){
-//         res.status(500).json({ message: "something went wrong", success: false });
+        let newmsg=await Message.findAll({where: {
+            id: {
+              [Op.gt]: lastId // use the "greater than" operator to compare the "id" column to Id
+            },
+            groupId:groupId
 
-//     }
+          }
+        });
+        // console.log("newmsg==>",newmsg);
+        res.status(200).json(newmsg);
+    }
+    catch(err){
+        res.status(500).json({ message: "something went wrong", success: false });
 
-// }
+    }
 
-//group related:-->
+}
+
+// group related:-->
 // exports.getOtherMembers=async(req,res,next)=>{
 //     try{
 //         const {groupId}=req.params;

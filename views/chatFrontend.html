@@ -9,14 +9,24 @@
       /* #members{
         list-style:none;
       } */
+      #textArea{
+        border-radius: 20px;
+      }
+      #input{
+        margin-top: 7vh;
+      }
+      #box{
+        height:70vh;
+      }
     </style>
   </head>
   <body>
     <h1 id="Groupchatheading" class="text-center"></h1>
     <div class="container-fluid">
-      <div class="row border border-dark">
+      <div class="row">
        
-        <div class="col-sm-4 bg-primary">
+        <!-- members -->
+        <div class="col-md-3 bg-primary">
           <hr>
           <h2 class="text-center"> Admin(s):</h2>
           <ol id="admins"></ol>
@@ -25,10 +35,33 @@
           
           <ol id="members"></ol>
         </div>
-    
-        <div class="col-sm-6">
-        <h2 class="chatbox">Message Box:</h2>
 
+    <!-- messagebox -->
+        <div class="col-md-6 ms-3 border border-success ">
+        <h2 id="chatbox" class="text-center">Message Box:</h2>
+        <hr>
+        <!-- messsgege showing -->
+        <div id="box" class="ms-3 col-md-10 bg-light">
+          <ul id="othermsg" class="list-inline ">
+            <!-- <li >other msg</li> -->
+          
+          </ul>
+          <ul id="usermsg" class="text-center list-inline ">
+            <!-- <li>user message</li> -->
+          </ul>
+        </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div id="input" class="container-fluid bg-primary">
+      <div class="row justify-content-center">
+        <div class="col-md-5">
+          <textarea id="textArea" class="text-start" name="w3review" rows="2" cols="80" placeholder="type message"></textarea>
+        </div>
+        <div class="col-md-4">
+          <button id="send" class="btn btn-outline-light mt-2">Send</button>
         </div>
       </div>
     </div>
