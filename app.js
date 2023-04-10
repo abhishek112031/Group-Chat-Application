@@ -26,6 +26,28 @@ io.on('connection',socket=>{
         // console.log("socket::",data);
         io.emit('receive',data);
     })
+
+    socket.on('remove-user',data=>{
+
+        io.emit('remove-success',data);
+    });
+
+    socket.on('join-user',data=>{
+        io.emit('join-success',data)
+
+    })
+
+    socket.on('showNewGroup',data=>{
+        io.emit('display-success',data)
+
+    });
+    socket.on('newAdmin',data=>{
+        io.emit('newAmin-success',data);
+    });
+
+    socket.on('delete-group',data=>{
+        io.emit('delete-success',data)
+    });
 })
 
 app.use(bodyParser.json({extended:false}));

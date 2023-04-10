@@ -7,10 +7,19 @@ const User = require('../models/user');
 const Message=require('../models/chatbox');
 const Group=require('../models/group');
 const User_Group=require('../models/usergroup')
-
-// const jwt=require('jsonwebtoken');
 const dotenv=require('dotenv');
 dotenv.config();
+
+
+function invalidInput(input) {
+    if (input === undefined || input.length === 0) {
+         return true;
+    }
+    else {
+         return false;
+    }
+}
+
 
 //chat window:
 exports.groupMessagePage=async(req,res,next)=>{
@@ -25,7 +34,10 @@ exports.getHeadingData=async (req,res,next)=>{
 
     }
     catch(err){
-        console.log('heading err:-->',err);
+        // console.log('heading err:-->',err);
+        res.status(500).json({message:'Heading: something went wrong'});
+
+
 
     }
 }
@@ -34,7 +46,7 @@ exports.getHeadingData=async (req,res,next)=>{
 exports.getMessages=async(req,res,next)=>{
     try{
         const {groupId,lastMessageId}=req.query;
-        console.log('grid-->',groupId,lastMessageId)
+        // console.log('grid-->',groupId,lastMessageId)
         const messages=await Message.findAll({where:{
             groupId:groupId
         }});
@@ -54,27 +66,45 @@ exports.getMessages=async(req,res,next)=>{
 
     }
     catch(err){
-        console.log("*****",err)
-        res.status(500).json({message:'something went wrong'})
+        // console.log("*****",err)
+        res.status(500).json({message:'Get Messages: something went wrong'});
 
     }
 }
 exports.postMessages=async (req,res,next)=>{
     try{
         const {message,userId,groupId}=req.body;
-        const saveToDb=await Message.create({
-            message:message,
-            senderName:req.user.name,
+       
+        const isIngroup=await User_Group.findOne({where:{
             userId:userId,
             groupId:groupId
+        }});
 
-        });
-        res.status(201).json(saveToDb);
+        if(isIngroup){
+            if(invalidInput(message)){
+                return res.status(404).json({ message: "Post Message: Message field can't be empty!", success: false });
+        
+            }
+
+            const saveToDb=await Message.create({
+                message:message,
+                senderName:req.user.name,
+                userId:userId,
+                groupId:groupId
+    
+            });
+            res.status(201).json(saveToDb);
+        }
+        else{
+            return res.status(403).json({ message: "Post Message: unothorized!", success: false });
+
+        }
 
 
     }
     catch(err){
-        console.log('err--->',err)
+        res.status(500).json({ message: "Post Message: something went wrong", success: false });
+
 
     }
 }
@@ -92,7 +122,7 @@ exports.getNewMessages=async(req,res,next)=>{
 
           }
         });
-        // console.log("newmsg==>",newmsg);
+       
         res.status(200).json(newmsg);
     }
     catch(err){
@@ -105,150 +135,3 @@ exports.getNewMessages=async(req,res,next)=>{
    
 }
 
-// exports.postChatMessage=(req,res,next)=>{
-//     const message=req.body.message;
-//     console.log(req.user);
-//     // console.log(typeof(message));
-//     bcrypt.hash(message, 10, async (err, hash) => {
-//         try {
-
-//            const msg=await Message.create({
-
-//                 message: hash,
-//                 userId:req.user.id
-//             });
-//             // console.log(msg)
-//             res.status(201).json({ message: 'successfull', success: true })
-//         }
-//         catch (err) {
-//             // console.log(err)
-//             res.status(500).json({ message: "something went wrong", success: false });
-
-//         }
-
-//     })
-    
-// }
-
-// exports.postChatMessage= async (req,res,next)=>{
-//     try{
-
-//         const message=req.body.message;
-//         // console.log(req.user);
-//         const msg=await Message.create({
-    
-//              message: message,
-//              userId:req.user.id,
-//              name:req.user.name
-//          });
-//         //  console.log(msg.id);
-//          res.status(201).json({ message: msg,name:req.user.name, success: true });
-//     }
-//     // console.log(typeof(message));
-//     catch(err){
-//         res.status(500).json({ message: "something went wrong", success: false });
-//     }
-    
-// };
-// exports.getChatMessages=async(req,res,next)=>{
-
-//     try{
-//         const userMessageArr=await Message.findAll();
-//         console.log("***",userMessageArr);
-//         // res.status(200).json({message:userMessageArr,admin:req.user.name});//all msg
-//         res.status(200).json({admin:req.user.name});//all msg
-
-        
-//         // res.status(200).json({message:userMessageArr.slice(userMessageArr.length-15,userMessageArr.length),admin:req.user.name});//only last 15 msg
-
-//     }
-//     catch(err){
-//         console.log("err-->",err);
-//         res.status(500).json({ message: "something went wrong", success: false });
-
-//     }
-
-// }
-// // query for new message only:--> 
-// exports.getNewMessages=async (req,res,next)=>{
-//     try{
-
-
-//       const {lastId,groupId}=req.query;
-//         // console.log("id===",id);
-    
-//         let newmsg=await Message.findAll({where: {
-//             id: {
-//               [Op.gt]: lastId // use the "greater than" operator to compare the "id" column to Id
-//             },
-//             groupId:groupId
-
-//           }
-//         });
-//         // console.log("newmsg==>",newmsg);
-//         res.status(200).json(newmsg);
-//     }
-//     catch(err){
-//         res.status(500).json({ message: "something went wrong", success: false });
-
-//     }
-
-// }
-
-// group related:-->
-// exports.getOtherMembers=async(req,res,next)=>{
-//     try{
-//         const {groupId}=req.params;
-//         // const currentUser=await User.findByPk(req.user.id);
-//         // const currentGroup= await Group.findByPk(groupId);
-//         const membersOfCurrGroup=await User_Group.findAll({where:{groupId:groupId,isAdmin:false}});
-//         // console.log("group members with same groupId",membersOfCurrGroup);
-//         const userIdsArr=[];
-//         membersOfCurrGroup.forEach((elem)=>{
-//             userIdsArr.push(elem.userId);
-//         });
-//         // res.status(200).json(membersOfCurrGroup);
-
-//         const memberDetails=await User.findAll({
-//             where:{
-//                 id:userIdsArr
-//             },
-//             attributes:['id','name']
-//         });
-//         res.status(200).json(memberDetails);
-//         // console.log('useridar-->',userIdsArr)
-
-
-//     }
-//     catch(err){
-//         console.log("err-->",err)
-//     }
-
-
-// };
-// exports.getAdmins=async (req,res,next)=>{
-//     try{
-//         const {Id}=req.params;
-//         // console.log("id--",Id);
-//         const admin=await  User_Group.findAll({where:{groupId:Id,isAdmin:true}});
-//         const admiIdArr=[];
-//         admin.forEach((elem)=>{
-//             admiIdArr.push(elem.userId);
-//         });
-
-//         const adminDetails=await User.findAll({
-//             where:{
-//                 id:admiIdArr
-//             },
-//             attributes:['id','name']
-//         });
-//         res.status(200).json(adminDetails);
-
-
-//     }
-//     catch(err){
-//         console.log("err==>>",err);
-//     }
-
-
-// }

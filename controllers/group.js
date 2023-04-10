@@ -14,6 +14,19 @@ function invalidInput(input) {
          return false;
     }
 }
+exports.joinedNewmember=async(req,res,next)=>{
+    try{
+
+        const {groupId,userId}=req.query;
+
+        const newUser=await User.findByPk(userId);
+        res.status(200).json(newUser);
+    }
+    catch(err){
+        console.log(err);
+    }
+
+}
 
 exports.getGroupPage=(req,res,next)=>{
     res.sendFile(path.join(__dirname,'..','views','group.html'));
@@ -34,7 +47,7 @@ exports.createNewGroup= async (req,res,next)=>{
         const userNewGroup= await req.user.createGroup({nameOfGroup:newGroup},{through: {isAdmin : true}});
         // console.log("===>",userNewGroup);
     
-        return res.status(201).json({ nameOfGroup: userNewGroup.nameOfGroup ,id:userNewGroup.id});
+        return res.status(201).json({ nameOfGroup: userNewGroup.nameOfGroup ,id:userNewGroup.id,userId:req.user.id});
     }
     catch(err){
         return res.status(500).json({success : false, message: 'Something went wrong !'});
@@ -60,8 +73,7 @@ catch(err){
 exports.getOtherMembers=async(req,res,next)=>{
     try{
         const {groupId}=req.params;
-        // const currentUser=await User.findByPk(req.user.id);
-        // const currentGroup= await Group.findByPk(groupId);
+       
         const membersOfCurrGroup=await User_Group.findAll({where:{groupId:groupId,isAdmin:false}});
         // console.log("group members with same groupId",membersOfCurrGroup);
         const userIdsArr=[];
@@ -82,7 +94,8 @@ exports.getOtherMembers=async(req,res,next)=>{
 
     }
     catch(err){
-        console.log("err-->",err)
+        // console.log("err-->",err)
+        res.status(500).json({message:'Something Went Wrong !'});
     }
 
 
@@ -108,7 +121,8 @@ exports.getAdmins=async (req,res,next)=>{
 
     }
     catch(err){
-        console.log("err==>>",err);
+        // console.log("err==>>",err);
+        res.status(500).json({message:'Something Went Wrong !'});
     }
 
 
@@ -176,7 +190,7 @@ exports.makeUserAdmin=async(req,res,next)=>{
 
         const isAdmincurrentUser=await User_Group.findOne({where : {groupId: groupId, userId : req.user.id , isAdmin: true}});
         if(!isAdmincurrentUser){
-            res.status(404).json({message:'Only admins has this functionality'});
+            res.status(404).json({message:'Only admin has this functionality'});
         }
         else if(isAdmincurrentUser){
 
@@ -198,10 +212,8 @@ exports.removeUser=async (req,res,next)=>{
     try{
         const {userId,groupId}=req.body;
         const isAdmincurrentUser=await User_Group.findOne({where : {groupId: groupId, userId : req.user.id , isAdmin: true}});
-        if(!isAdmincurrentUser){
-            res.status(404).json({message:'Only admins has this functionality'});
-        }
-        else if(isAdmincurrentUser){
+   
+       if(isAdmincurrentUser || (userId==req.user.id)){
 
             const removeUser=await User_Group.destroy({where:{
                 userId:userId,
@@ -209,6 +221,9 @@ exports.removeUser=async (req,res,next)=>{
             }});
     
             res.status(200).json({message:'User has been removed from this group successfully!! '})
+        }
+        else{
+            res.status(404).json({message:'Only admins and this user has this functionality'});
         }
 
 
@@ -233,7 +248,7 @@ exports.deleteGroupByAdmin=async(req,res,next)=>{
         }
     }
     catch(err){
-        // console.log(err);
+      
         return res.status(500).json({success: false, message : `Something went wrong !`});
     }
 };

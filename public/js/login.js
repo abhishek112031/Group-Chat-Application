@@ -13,6 +13,7 @@ async function loginUser(event){
             if(confirm(resp.data.message)){
     
               localStorage.setItem('token',resp.data.token);
+              localStorage.setItem('userId',resp.data.userId)
 
               window.location.href='/groups';
       

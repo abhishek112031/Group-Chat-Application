@@ -1,3 +1,4 @@
+let socket=io();
 async function createGroup(event) {
     event.preventDefault();
     try {
@@ -11,9 +12,11 @@ async function createGroup(event) {
         let resp1 = await axios.post('/add-newGroup', newGroup, { headers: { "Authorization": token } });
 
         // console.log("newgrp==",resp1)
-
-        showGroupsOnscreen(resp1.data);
         document.getElementById('group').value = "";
+
+        socket.emit('showNewGroup',resp1.data);
+
+      
     }
     catch (err) {
         document.getElementById('errDel').innerHTML = `<h5 class="text-center bg-danger">${err.response.data.message}<h5/>`
@@ -26,6 +29,20 @@ async function createGroup(event) {
 
 
 };
+
+//new group display realtime:
+socket.on('display-success',data=>{
+    console.log('group data==>',data)
+    if(data.userId==localStorage.getItem('userId')){
+         showGroupsOnscreen(data);
+
+    }
+    else{
+        showOtherGroupsOnscreen(data);
+
+    }
+})
+
 
 function showGroupsOnscreen(data) {
     let parent_node = document.getElementById('all-groups');
@@ -78,16 +95,33 @@ async function joinGroup(groupId) {
 
     const token = localStorage.getItem('token');
 
-    const joinResp = await axios.get(`/join-group/${groupId}`, { headers: { "Authorization": token } });
-    if (joinResp.status === 200) {
-        let parent3 = document.getElementById('other-groups');
-        let child3 = document.getElementById(groupId);
-        if (child3) {
-            parent3.removeChild(child3);
+    try{
+
+        const joinResp = await axios.get(`/join-group/${groupId}`, { headers: { "Authorization": token } });
+        if (joinResp.status === 200) {
+            let parent3 = document.getElementById('other-groups');
+            let child3 = document.getElementById(groupId);
+            if (child3) {
+                parent3.removeChild(child3);
+            }
+            showGroupsOnscreen(joinResp.data.group);
+            alert(joinResp.data.message);
+            let userGroupData={userId:localStorage.getItem('userId'),groupId:groupId};
+            
+            socket.emit('join-user',userGroupData);
+    
+    
         }
-        showGroupsOnscreen(joinResp.data.group);
-        alert(joinResp.data.message);
     }
+    catch(err){
+        document.getElementById('errDel').innerHTML = `<h5 class="text-center bg-danger">${err.response.data.message}<h5/>`
+        setTimeout(() => {
+
+            document.getElementById('errDel').innerHTML = ""
+        }, 2000);
+
+    }
+
 };
 
 async function deleteGroup(groupId) {
@@ -95,12 +129,9 @@ async function deleteGroup(groupId) {
     try {
         const groupDeletedResp = await axios.delete(`/delete-group/${groupId}`, { headers: { "Authorization": token } });
         if (groupDeletedResp.status === 200) {
+            
+            socket.emit('delete-group',groupId);
 
-            const p = document.getElementById('all-groups');
-            const c = document.getElementById(groupId);
-            if (c) {
-                p.removeChild(c);
-            }
             alert(groupDeletedResp.data.message)
         }
         else {
@@ -110,18 +141,30 @@ async function deleteGroup(groupId) {
     }
     catch (err) {
         // console.log(err)
-        document.getElementById('errDel').innerHTML = `<h5 class="text-center bg-danger">${err.response.data.message}<h5/>`
-        setTimeout(() => {
+        // document.getElementById('errDel').innerHTML = `<h5 class="text-center bg-danger">${err.response.data.message}<h5/>`
+        // setTimeout(() => {
 
-            document.getElementById('errDel').innerHTML = ""
-        }, 2000);
+        //     document.getElementById('errDel').innerHTML = ""
+        // }, 2000);
+        alert(err.response.data.message)
 
     }
 };
+socket.on('delete-success',data=>{
+  
+    const c = document.getElementById(data);
+    console.log('///',data)
+    c.remove();
+   
+   
+  
+
+});
+
 
 //open groupWindow:-->
 async function openGroup(grId){
     localStorage.setItem('groupId',grId);
-    console.log("save to local storage!");
+    // console.log("save to local storage!");
     window.location.href=`/group/messages`
 }

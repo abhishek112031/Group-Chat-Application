@@ -33,8 +33,6 @@ exports.postUserDetails = (req, res, next) => {
           bcrypt.hash(password, 10, async (err, hash) => {
                try {
 
-                    
-
                          const user = await User.create({
                               name: name,
                               email: email,
@@ -77,7 +75,7 @@ exports.postLoginDetails=async(req,res,next)=>{
   
                   }
                   if (result === true) {
-                      res.status(200).json({ success: true, message: 'Logged in successful', token: generateAccessToken(user[0].id, user[0].name) })
+                      res.status(200).json({ success: true, message: 'Logged in successful', token: generateAccessToken(user[0].id, user[0].name),userId:user[0].id })
                   }
                   else {
                       return res.status(400).json({ success: false, message: 'Incorrect Password! Please refresh the page and Enter again' })

@@ -3,7 +3,7 @@ const router=express.Router();
 const groupController=require('../controllers/group');
 const userAuth=require('../middleware/auth');
 
-
+router.get('/joined-new-member',groupController.joinedNewmember)
 router.get('/groups',groupController.getGroupPage);
 router.get('/user-name',userAuth,groupController.getuserName);
 router.post('/add-newGroup',userAuth,groupController.createNewGroup);
@@ -16,6 +16,10 @@ router.get('/group-admins/:Id',userAuth,groupController.getAdmins);
 // router.get('/group/messages',groupController.groupMessagePage)
 router.post('/make-admin',userAuth,groupController.makeUserAdmin);
 router.post('/remove-user',userAuth,groupController.removeUser);
+
+//trial:
+
+
 router.delete('/delete-group/:groupId',userAuth,groupController.deleteGroupByAdmin)
 
 

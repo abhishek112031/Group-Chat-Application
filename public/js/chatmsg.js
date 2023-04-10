@@ -3,9 +3,7 @@ let groupId = localStorage.getItem('groupId');
 let userId=localStorage.getItem('userId');
 let lastMsgId=0;
 let socket=io();
-// socket.on('custom',(data)=>{
-//     console.log("from socket io:::",data.name)
-// });
+
 window.addEventListener('DOMContentLoaded', async () => {
     try {
          //heading data:user name,group name:
@@ -25,11 +23,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       allMsgResp.data.forEach((elem)=>{
         display(elem);
     });
-
-      
-
-
-        
+ 
         const allGroupMemberRes = await axios.get(`/userGroup/members/${groupId}`, { headers: { "Authorization": token } });
         console.log('members=>', allGroupMemberRes.data);
         allGroupMemberRes.data.forEach(element => {
@@ -51,7 +45,8 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     }
     catch (err) {
-        console.log('err-->', err)
+        // console.log('err-->', err)
+        alert(err.response.data.message);
     }
 });
 // console.log("lastMsgId==",lastMsgId)
@@ -83,21 +78,27 @@ async function makeAdmin(userId) {
         }
 
         const makeAdminResp = await axios.post('/make-admin', details, { headers: { "Authorization": token } });
-        let parent2 = document.getElementById('members');
-        let child2 = document.getElementById(userId);
 
-        parent2.removeChild(child2);
-        showgroupAdminsOnScreen(makeAdminResp.data);
-
-
+        socket.emit('newAdmin',makeAdminResp.data);
 
 
     }
     catch (err) {
+        alert(err.response.data.message);
 
     }
 
 }
+socket.on('newAmin-success',data=>{
+    let parent5 = document.getElementById('members');
+    let child5 = document.getElementById(data.id);
+    parent5.removeChild(child5);
+    
+    showgroupAdminsOnScreen(data);
+
+ });
+
+
 async function removeUser(userId) {
     try {
         const details = {
@@ -106,17 +107,28 @@ async function removeUser(userId) {
         }
 
         const removeRes = await axios.post('/remove-user', details, { headers: { "Authorization": token } });
-        let parent3 = document.getElementById('members');
-        let child3 = document.getElementById(userId);
+        
+       
 
-        parent3.removeChild(child3);
+        socket.emit('remove-user',userId);
+        
+
+
 
 
     }
     catch (err) {
+        alert(err.response.data.message)
 
     }
 }
+//remove screen 
+socket.on('remove-success',userId=>{
+    let parent3 = document.getElementById('members');
+    let child3 = document.getElementById(userId);
+
+    parent3.removeChild(child3);
+})
 
 
 //post message:
@@ -142,14 +154,15 @@ document.getElementById('send').onclick = async function (e) {
 
     }
     catch (err) {
-        console.log('err-->', err)
+        // console.log(err)
+        alert(err.response.data.message);
     }
 
 }
 
-
+//for user message show realtime
 socket.on('receive', async(data)=>{
-    console.log('received from back end:-->',data==groupId);
+    // console.log('received from back end:-->',data==groupId);
     try{
 
         if(groupId===data){
@@ -165,7 +178,7 @@ socket.on('receive', async(data)=>{
         }
     }
     catch(err){
-        console.log('socket on err==>',err)
+        alert('something went wrong!!!')
     }
 
 })
@@ -177,64 +190,35 @@ function display(data){
 
     }
 }
+//when new user join it reflect on screen of others realtime:
+socket.on('join-success',async data=>{
+    console.log("join-->",data)
+    const userId=Number(data.userId);
+    const groupId=Number(data.groupId);
+    try{
+           if(groupId==localStorage.getItem('groupId')){
+               const joinedMember=await axios.get(`/joined-new-member/?userId=${userId}&groupId=${groupId}`);
+               console.log('n u details-->',joinedMember.data)
+               let parentN = document.getElementById('members');
+               let childN = `<li id=${joinedMember.data.id}>${joinedMember.data.name} <button class="btn btn-outline-warning" onclick=makeAdmin('${joinedMember.data.id}') >Make Admin</button><button class="ms-1 btn btn-outline-dark" onclick=removeUser('${joinedMember.data.id}')>Remove</button></li>`
+               if (childN) {
+           
+                   parentN.innerHTML += childN;
+               }
+       
+           }
+        
+       }
+       catch(err){
+        console.log(err);
+       }
+       
+
+       
+});
 
 
-// async function localStorageLogic() {
-//     if (localStorage.getItem('messages') != null) {
 
-//         let msgStr = localStorage.getItem('messages');
-//         let msgParsed = JSON.parse(msgStr);
-//         let lastMsgId = msgParsed[msgParsed.length - 1].id;
-//         // ?page=1&size=${noOfRows}
-//         let newres = await axios.get(`/user/new-messages/?lastId=${lastMsgId}&groupId=${groupId}`,{ headers: { "Authorization": token } });
-
-//         localStorage.setItem('messages', JSON.stringify(msgParsed.concat(newres.data)));
-
-//         let allchats = JSON.parse(localStorage.getItem('messages'));
-//         allchats.forEach(element => {
-//             showOnScreen(element);
-
-//         });
-   
-//     }
-//     else {
-//         localStorage.setItem('messages', JSON.stringify([{ id: 0, senderName: "Chat App", message: "no messages yet,waiting for Your first message🥱" }]));
-//     }
-
-
-
-
-// }
-
-// function showOnScreen(data){
-//     // if(data.userId==userId){
-//         let parentNode=document.getElementById('usermsg');
-//         let childNode=`<li id=${data.id}>${data.senderName}::${data.message}</li>`;
-//         parentNode.innerHTML+=childNode;
-//     // }
-//     // else{
-//     //     let parentNode2=document.getElementById('othermsg');
-//     //     let childNode2=`<li id=${data.id}>${data.senderName}::${data.message}</li>`;
-//     //     parentNode2.innerHTML+=childNode2;
-
-//     // }
-
-// }
-
-// function showOnScreen(data){
-//     let parentNode=document.getElementById('usermsg');
-//     if(data.userId==userId){
-//         let childNode=`<li id=${data.id}  class="mt-2 text-light pe-2 text-end bg-secondary rounded rounded-3"><span class="fw-bold">${data.senderName}:</span> <span class="fst-italic">${data.message}</span></li>`;
-//         parentNode.innerHTML+=childNode;
-//     }
-//     else{
- 
-//         let childNode2=`<li id=${data.id} class="mt-2 ps-2 text-light bg-secondary rounded rounded-3">${data.senderName}::${data.message}</li>`;
-//         parentNode.innerHTML+=childNode2;
-
-//     }
-
-// }
 
 
 
