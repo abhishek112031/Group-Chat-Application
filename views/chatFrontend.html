@@ -1,70 +1,130 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Chat Window</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
-    <style>
-      /* #members{
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chat Window</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.1/socket.io.js"></script>
+  <style>
+    /* #members{
         list-style:none;
       } */
-      #textArea{
-        border-radius: 20px;
-      }
-      #input{
-        margin-top: 7vh;
-      }
-      #box{
-        height:70vh;
-      }
-    </style>
-  </head>
-  <body>
-    <h1 id="Groupchatheading" class="text-center"></h1>
-    <div class="container-fluid">
-      <div class="row">
-       
-        <!-- members -->
-        <div class="col-md-3 bg-primary">
-          <hr>
-          <h2 class="text-center"> Admin(s):</h2>
+    body{
+      background-image: url("https://images.unsplash.com/photo-1526554850534-7c78330d5f90?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y2hhdCUyMGJhY2tncm91bmR8ZW58MHx8MHx8&auto=format&fit=crop&w=500&q=60");
+      background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    }  
+    #textArea {
+      border-radius: 20px;
+    }
+
+    #input {
+      margin-top: 7vh;
+    }
+
+    #box {
+      height: 70vh;
+    }
+    .scroll{
+      height: 15rem;
+      width: 25rem;
+      overflow: hidden;
+      overflow-y: scroll;
+      border: 2px solid black;
+      border-radius: 10px;
+
+
+    }
+
+    .scroll-div {
+      background-image: url("https://images.unsplash.com/photo-1472289065668-ce650ac443d2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTMzfHxjaGF0JTIwYmFja2dyb3VuZHxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=500&q=60");
+      background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+      /* height: 30vh;
+    width:20vw; */
+      height: 25rem;
+      width: 40rem;
+      overflow: hidden;
+      overflow-y: scroll;
+      border: 3px solid gray;
+    }
+
+    #Groupchatheading {
+      font-family: 'Merriweather Sans', sans-serif;
+      color: orange;
+      background: #571616;
+
+    }
+    #chatbox{
+      font-family: 'Merriweather Sans', sans-serif;
+      color: rgb(29, 28, 27);
+      background: #214bd459;
+      border-radius: 10px;
+
+
+    }
+    #row{
+      border-radius: 14px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1 id="Groupchatheading" class="text-center"></h1>
+  <div class="container-fluid">
+    <div id="row" class="row justify-content-between">
+
+      <!-- members -->
+      <div class="col-md-3 bg-primary">
+        <hr>
+        <h2 class="text-center"> Admin(s):</h2>
+        <div class="scroll">
           <ol id="admins"></ol>
-          <hr>
-          <h2 class="text-center">Other Members:</h2>
-          
+        </div>
+        <hr>
+        <h2 class="text-center">Other Members:</h2>
+        <div class="scroll">
           <ol id="members"></ol>
         </div>
+      </div>
 
-    <!-- messagebox -->
-        <div class="col-md-6 ms-3 border border-success ">
-        <h2 id="chatbox" class="text-center">Message Box:</h2>
-        <hr>
+      <!-- messagebox -->
+      <div class="col-md-6 ms-3 ">
+        <h2 id="chatbox" class="text-center"></h2>
+        <!-- <hr> -->
         <!-- messsgege showing -->
-        <div id="box" class="ms-3 col-md-10 bg-light">
-          <ul id="othermsg" class="list-inline ">
-            <!-- <li >other msg</li> -->
-          
-          </ul>
-          <ul id="usermsg" class="text-center list-inline ">
+        <div id="box" class="scroll-div ms-3 col-md-10 bg-light">
+
+          <ul id="usermsg" class="list-inline ">
             <!-- <li>user message</li> -->
           </ul>
         </div>
 
-        </div>
+      </div>
+
+      <!-- go to Groups -->
+      <div class="col-md-2 ms-2">
+        <button class="btn btn-outline-dark bg-success">Switch Groups</button>
       </div>
     </div>
+  </div>
 
-    <div id="input" class="container-fluid bg-primary">
-      <div class="row justify-content-center">
-        <div class="col-md-5">
-          <textarea id="textArea" class="text-start" name="w3review" rows="2" cols="80" placeholder="type message"></textarea>
-        </div>
-        <div class="col-md-4">
-          <button id="send" class="btn btn-outline-light mt-2">Send</button>
-        </div>
+  <div id="input" class="container-fluid bg-primary">
+    <div class="row justify-content-center">
+      <div class="col-md-5">
+        <textarea id="textArea" class="text-start" name="w3review" rows="2" cols="80"
+          placeholder="type message"></textarea>
+      </div>
+      <div class="col-md-4">
+        <button id="send" class="btn btn-outline-light mt-2">Send</button>
       </div>
     </div>
+  </div>
 
 
 
@@ -74,8 +134,11 @@
 
 
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.3.5/axios.min.js"></script>
-    <script src="/js/chatmsg.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
-  </body>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.3.5/axios.min.js"></script>
+  <script src="/js/chatmsg.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
+    crossorigin="anonymous"></script>
+</body>
+
 </html>

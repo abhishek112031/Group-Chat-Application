@@ -29,6 +29,36 @@ exports.getHeadingData=async (req,res,next)=>{
 
     }
 }
+
+//when browser refresh:
+exports.getMessages=async(req,res,next)=>{
+    try{
+        const {groupId,lastMessageId}=req.query;
+        console.log('grid-->',groupId,lastMessageId)
+        const messages=await Message.findAll({where:{
+            groupId:groupId
+        }});
+        let dummy=[{id:0}]
+       if(messages.length===0){
+        res.status(200).json(dummy);
+
+
+       }
+        else if( messages.length>0 && messages.length<11){
+            res.status(200).json(messages);
+        }
+        else if (messages.length>=11){
+            res.status(200).json(messages.slice((messages.length-10),messages.length));
+        }
+        
+
+    }
+    catch(err){
+        console.log("*****",err)
+        res.status(500).json({message:'something went wrong'})
+
+    }
+}
 exports.postMessages=async (req,res,next)=>{
     try{
         const {message,userId,groupId}=req.body;
@@ -47,6 +77,32 @@ exports.postMessages=async (req,res,next)=>{
         console.log('err--->',err)
 
     }
+}
+
+exports.getNewMessages=async(req,res,next)=>{
+    try{
+        const {lastMsgId,groupId}=req.query;
+       
+    
+        let newmsg=await Message.findAll({where: {
+            id: {
+              [Op.gt]: lastMsgId // use the "greater than" operator to compare the "id" column to Id
+            },
+            groupId:groupId
+
+          }
+        });
+        // console.log("newmsg==>",newmsg);
+        res.status(200).json(newmsg);
+    }
+    catch(err){
+        res.status(500).json({ message: "something went wrong", success: false });
+
+    }
+
+
+
+   
 }
 
 // exports.postChatMessage=(req,res,next)=>{
@@ -114,30 +170,30 @@ exports.postMessages=async (req,res,next)=>{
 
 // }
 // // query for new message only:--> 
-exports.getNewMessages=async (req,res,next)=>{
-    try{
+// exports.getNewMessages=async (req,res,next)=>{
+//     try{
 
 
-      const {lastId,groupId}=req.query;
-        // console.log("id===",id);
+//       const {lastId,groupId}=req.query;
+//         // console.log("id===",id);
     
-        let newmsg=await Message.findAll({where: {
-            id: {
-              [Op.gt]: lastId // use the "greater than" operator to compare the "id" column to Id
-            },
-            groupId:groupId
+//         let newmsg=await Message.findAll({where: {
+//             id: {
+//               [Op.gt]: lastId // use the "greater than" operator to compare the "id" column to Id
+//             },
+//             groupId:groupId
 
-          }
-        });
-        // console.log("newmsg==>",newmsg);
-        res.status(200).json(newmsg);
-    }
-    catch(err){
-        res.status(500).json({ message: "something went wrong", success: false });
+//           }
+//         });
+//         // console.log("newmsg==>",newmsg);
+//         res.status(200).json(newmsg);
+//     }
+//     catch(err){
+//         res.status(500).json({ message: "something went wrong", success: false });
 
-    }
+//     }
 
-}
+// }
 
 // group related:-->
 // exports.getOtherMembers=async(req,res,next)=>{
