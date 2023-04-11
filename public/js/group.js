@@ -15,7 +15,6 @@ async function createGroup(event) {
         document.getElementById('group').value = "";
 
         socket.emit('showNewGroup',resp1.data);
-
       
     }
     catch (err) {

@@ -8,16 +8,16 @@ window.addEventListener('DOMContentLoaded', async () => {
     try {
          //heading data:user name,group name:
          const headingResp = await axios.get(`/group/heading-data/${groupId}`, { headers: { "Authorization": token } });
-         console.log('heading resp==>', headingResp.data);
+        //  console.log('heading resp==>', headingResp.data);
          document.getElementById('Groupchatheading').innerHTML = `Hi ${headingResp.data.userName}, Welcome to Group Chat Room`;
-         document.getElementById('chatbox').innerHTML=`${headingResp.data.groupName}`
+         document.getElementById('chatbox').innerHTML=`Group: ${headingResp.data.groupName}`
          localStorage.setItem('userId',headingResp.data.userId);
         userId=headingResp.data.userId;
 
 
         //display function:****
        const allMsgResp=await axios.get(`/all-messages/?groupId=${groupId}&lastMessageId=${lastMsgId}`);
-       console.log("allmsg-->",allMsgResp.data);
+    //    console.log("allmsg-->",allMsgResp.data);
       lastMsgId=allMsgResp.data[allMsgResp.data.length-1].id;
 
       allMsgResp.data.forEach((elem)=>{
@@ -25,13 +25,13 @@ window.addEventListener('DOMContentLoaded', async () => {
     });
  
         const allGroupMemberRes = await axios.get(`/userGroup/members/${groupId}`, { headers: { "Authorization": token } });
-        console.log('members=>', allGroupMemberRes.data);
+        // console.log('members=>', allGroupMemberRes.data);
         allGroupMemberRes.data.forEach(element => {
             showgroupMembersOnScreen(element);
 
         });
         const adminsResp = await axios.get(`/group-admins/${groupId}`, { headers: { "Authorization": token } });
-        console.log("admins arr-->", adminsResp.data)
+        // console.log("admins arr-->", adminsResp.data)
         adminsResp.data.forEach(element => {
             showgroupAdminsOnScreen(element);
 
@@ -53,7 +53,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 async function showgroupMembersOnScreen(data) {
     let parent1 = document.getElementById('members');
-    let child1 = `<li id=${data.id}>${data.name} <button class="btn btn-outline-warning" onclick=makeAdmin('${data.id}') >Make Admin</button><button class="ms-1 btn btn-outline-dark" onclick=removeUser('${data.id}')>Remove</button></li>`
+    let child1 = `<li  id=${data.id} class="mt-1"><span class="fw-bold fst-italic">${data.name} </span><button class="btn btn-outline-primary btn-sm" onclick=makeAdmin('${data.id}') >Make Admin</button><button class=" btn btn-outline-danger btn-sm" onclick=removeUser('${data.id}')>Remove</button></li>`
     if (child1) {
 
         parent1.innerHTML += child1;
@@ -142,7 +142,7 @@ document.getElementById('send').onclick = async function (e) {
 
         }
         const postResp = await axios.post('/user/message', messageDetails, { headers: { "Authorization": token } });
-        console.log("****", postResp.data);
+        // console.log("****", postResp.data);
       
         document.getElementById('textArea').value="";
 
@@ -167,9 +167,9 @@ socket.on('receive', async(data)=>{
 
         if(groupId===data){
             const newMessages= await axios.get(`/new-messages/?groupId=${groupId}&lastMsgId=${lastMsgId}`);
-            console.log("newmessages---->",newMessages.data);
+            // console.log("newmessages---->",newMessages.data);
             lastMsgId=newMessages.data[newMessages.data.length-1].id;
-            console.log('lastmsgId',lastMsgId);
+            // console.log('lastmsgId',lastMsgId);
             newMessages.data.forEach((elem)=>{
                 display(elem);
             });
@@ -182,14 +182,39 @@ socket.on('receive', async(data)=>{
     }
 
 })
+//main:
+// function display(data){
+//     if(data.id!==0){
+//         let parentNode=document.getElementById('usermsg');
+//         let childNode=`<li id=${data.id}  class="mt-2 text-light  bg-secondary rounded rounded-3"><span class="fw-bold">${data.senderName}:</span> <span class="fst-italic">${data.message}</span></li>`;
+//         parentNode.innerHTML+=childNode;
+
+//     }
+// }
+
+// trial:
 function display(data){
     if(data.id!==0){
-        let parentNode=document.getElementById('usermsg');
-        let childNode=`<li id=${data.id}  class="mt-2 text-light  bg-secondary rounded rounded-3"><span class="fw-bold">${data.senderName}:</span> <span class="fst-italic">${data.message}</span></li>`;
-        parentNode.innerHTML+=childNode;
+        let parentNode=document.querySelector('#box');
+        // let parentNode2=document.querySelector('.right');
+        // console.log('--0000--->',data)
+
+        if(data.userId==userId){
+            let childNode2=`<div class="right message" id=${data.id}><span class="fw-bold">${data.senderName}:</span> <span class="fst-italic">${data.message}</span></div>`;
+            parentNode.innerHTML+=childNode2;
+            // <p>${data.createdAt.slice(11,19)}</p>
+        }else{
+            let childNode1=`<div class="left message" id=${data.id}><span class="fw-bold">${data.senderName}:</span> <span class="fst-italic">${data.message}</span></div>`;
+
+            parentNode.innerHTML+=childNode1;
+
+        }
+        
 
     }
 }
+
+
 //when new user join it reflect on screen of others realtime:
 socket.on('join-success',async data=>{
     console.log("join-->",data)
@@ -200,7 +225,7 @@ socket.on('join-success',async data=>{
                const joinedMember=await axios.get(`/joined-new-member/?userId=${userId}&groupId=${groupId}`);
                console.log('n u details-->',joinedMember.data)
                let parentN = document.getElementById('members');
-               let childN = `<li id=${joinedMember.data.id}>${joinedMember.data.name} <button class="btn btn-outline-warning" onclick=makeAdmin('${joinedMember.data.id}') >Make Admin</button><button class="ms-1 btn btn-outline-dark" onclick=removeUser('${joinedMember.data.id}')>Remove</button></li>`
+               let childN = `<li id=${joinedMember.data.id}>${joinedMember.data.name} <button class="btn btn-outline-primary btn-sm" onclick=makeAdmin('${joinedMember.data.id}') >Make Admin</button><button class="ms-1 btn btn-outline-danger btn-sm" onclick=removeUser('${joinedMember.data.id}')>Remove</button></li>`
                if (childN) {
            
                    parentN.innerHTML += childN;

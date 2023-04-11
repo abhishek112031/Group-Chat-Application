@@ -15,6 +15,9 @@ const userRoute=require('./routes/user');
 const chatRoute=require('./routes/chatbox');
 const groupRoute=require('./routes/group');
 
+//controller:
+const errorController=require('./controllers/error')
+
 
 
 const app=express();
@@ -60,6 +63,7 @@ app.use(cors({
 app.use(userRoute);
 app.use(groupRoute);
 app.use(chatRoute);
+app.use(errorController.get404Page);
 
 
 
