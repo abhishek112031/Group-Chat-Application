@@ -51,13 +51,11 @@ io.on('connection',socket=>{
     socket.on('delete-group',data=>{
         io.emit('delete-success',data)
     });
-})
+});
 
 app.use(bodyParser.json({extended:false}));
 app.use(express.static(path.join(__dirname,'public')));
-app.use(cors({
-    origin:'http://127.0.0.1:5500/'
-}));
+app.use(cors());
 
 //main middlewares:
 app.use(userRoute);

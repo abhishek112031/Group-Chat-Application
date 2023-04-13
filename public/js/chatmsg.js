@@ -51,6 +51,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 });
 // console.log("lastMsgId==",lastMsgId)
 
+//other than admins:
 async function showgroupMembersOnScreen(data) {
     let parent1 = document.getElementById('members');
     let child1 = `<li  id=${data.id} class="mt-1"><span class="fw-bold fst-italic">${data.name} </span><button class="btn btn-outline-primary btn-sm" onclick=makeAdmin('${data.id}') >Make Admin</button><button class=" btn btn-outline-danger btn-sm" onclick=removeUser('${data.id}')>Remove</button></li>`
@@ -107,13 +108,15 @@ async function removeUser(userId) {
         }
 
         const removeRes = await axios.post('/remove-user', details, { headers: { "Authorization": token } });
-        
+
        
-
-        socket.emit('remove-user',userId);
+        // socket.emit('remove-user',userId);
         
-
-
+        //trial
+        // alert(removeRes.date.message)
+       
+        socket.emit('remove-user',details);
+        // alert(removeRes.date.message)
 
 
     }
@@ -123,11 +126,15 @@ async function removeUser(userId) {
     }
 }
 //remove screen 
-socket.on('remove-success',userId=>{
-    let parent3 = document.getElementById('members');
-    let child3 = document.getElementById(userId);
+socket.on('remove-success',data=>{
+    if(data.groupId==groupId){
 
-    parent3.removeChild(child3);
+        let parent3 = document.getElementById('members');
+        let child3 = document.getElementById(data.userId);
+    
+        parent3.removeChild(child3);
+        
+    }
 })
 
 
@@ -160,15 +167,15 @@ document.getElementById('send').onclick = async function (e) {
 
 }
 
-//for user message show realtime
+//for user message show realtime: only new messages:
 socket.on('receive', async(data)=>{
     // console.log('received from back end:-->',data==groupId);
     try{
-
+        //message will be send to the specific gr only:
         if(groupId===data){
             const newMessages= await axios.get(`/new-messages/?groupId=${groupId}&lastMsgId=${lastMsgId}`);
             // console.log("newmessages---->",newMessages.data);
-            lastMsgId=newMessages.data[newMessages.data.length-1].id;
+            lastMsgId=newMessages.data[newMessages.data.length-1].id; //updating last message Id
             // console.log('lastmsgId',lastMsgId);
             newMessages.data.forEach((elem)=>{
                 display(elem);

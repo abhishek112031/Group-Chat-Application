@@ -34,10 +34,10 @@ exports.getGroupPage=(req,res,next)=>{
 exports.getuserName=(req,res,next)=>{
     res.status(200).json({username:req.user.name})
 }
+
+
 exports.createNewGroup= async (req,res,next)=>{
     try{
-
-
         const {newGroup}=req.body;
         if(invalidInput(newGroup)){
             return res.status(400).json({ message: 'input can not be empty or undefined' });
@@ -55,6 +55,7 @@ exports.createNewGroup= async (req,res,next)=>{
 
 
 };
+
 exports.userAllGroups=async (req,res,next)=>{
 try{
 
@@ -70,10 +71,13 @@ catch(err){
 }
 
 };
+
+//not admin
 exports.getOtherMembers=async(req,res,next)=>{
     try{
         const {groupId}=req.params;
        
+        //where members are not admin:
         const membersOfCurrGroup=await User_Group.findAll({where:{groupId:groupId,isAdmin:false}});
         // console.log("group members with same groupId",membersOfCurrGroup);
         const userIdsArr=[];
@@ -100,9 +104,11 @@ exports.getOtherMembers=async(req,res,next)=>{
 
 
 };
+
+
 exports.getAdmins=async (req,res,next)=>{
     try{
-        const {Id}=req.params;
+        const {Id}=req.params;//requesing with group id from front-end
         // console.log("id--",Id);
         const admin=await  User_Group.findAll({where:{groupId:Id,isAdmin:true}});
         const admiIdArr=[];
@@ -127,11 +133,13 @@ exports.getAdmins=async (req,res,next)=>{
 
 
 }
+
+//user is not part of :
 exports.otherGroups=async(req,res,next)=>{
     try{
 
         const userGroup=await req.user.getGroups();
-        let groupIds=[];
+        let groupIds=[];//storing group ids(user is part of)
         userGroup.forEach(element => {
             groupIds.push(element.id)
             
@@ -155,6 +163,8 @@ exports.otherGroups=async(req,res,next)=>{
 
 
 };
+
+//when user join a new group:
 exports.joinGroup=async(req,res,next)=>{
     try{
 
@@ -179,7 +189,8 @@ exports.makeUserAdmin=async(req,res,next)=>{
         const {userId,groupId}=req.body;
 
         // console.log("***",userId,groupId);
-
+       
+        //user who will be admin:
         const updateAsGroupAdmin=await User_Group.findOne({where:{
             userId:userId,
             groupId:groupId
@@ -187,7 +198,7 @@ exports.makeUserAdmin=async(req,res,next)=>{
         }
 
         });
-
+          //checking requested user admin or not:
         const isAdmincurrentUser=await User_Group.findOne({where : {groupId: groupId, userId : req.user.id , isAdmin: true}});
         if(!isAdmincurrentUser){
             res.status(404).json({message:'Only admin has this functionality'});
@@ -211,6 +222,8 @@ exports.makeUserAdmin=async(req,res,next)=>{
 exports.removeUser=async (req,res,next)=>{
     try{
         const {userId,groupId}=req.body;
+
+        //who is reqesting:
         const isAdmincurrentUser=await User_Group.findOne({where : {groupId: groupId, userId : req.user.id , isAdmin: true}});
    
        if(isAdmincurrentUser || (userId==req.user.id)){

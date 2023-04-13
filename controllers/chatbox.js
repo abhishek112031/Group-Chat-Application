@@ -7,8 +7,8 @@ const User = require('../models/user');
 const Message=require('../models/chatbox');
 const Group=require('../models/group');
 const User_Group=require('../models/usergroup')
-const dotenv=require('dotenv');
-dotenv.config();
+// const dotenv=require('dotenv');
+// dotenv.config();
 
 
 function invalidInput(input) {
@@ -37,33 +37,27 @@ exports.getHeadingData=async (req,res,next)=>{
         // console.log('heading err:-->',err);
         res.status(500).json({message:'Heading: something went wrong'});
 
-
-
     }
 }
 
 //when browser refresh:
 exports.getMessages=async(req,res,next)=>{
     try{
-        const {groupId,lastMessageId}=req.query;
+        const {groupId}=req.query;
         // console.log('grid-->',groupId,lastMessageId)
         const messages=await Message.findAll({where:{
             groupId:groupId
         }});
-        let dummy=[{id:0}]
+        let dummy=[{id:0}];
        if(messages.length===0){
         res.status(200).json(dummy);
-
-
        }
         else if( messages.length>0 && messages.length<11){
             res.status(200).json(messages);
         }
         else if (messages.length>=11){
             res.status(200).json(messages.slice((messages.length-10),messages.length));
-        }
-        
-
+        }      
     }
     catch(err){
         // console.log("*****",err)
@@ -75,6 +69,7 @@ exports.postMessages=async (req,res,next)=>{
     try{
         const {message,userId,groupId}=req.body;
        
+        //if group along user exists,he/she may be removed when inside chat box
         const isIngroup=await User_Group.findOne({where:{
             userId:userId,
             groupId:groupId
